@@ -1,0 +1,137 @@
+ 
+@access_token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3NjM5ODM3NDYsImV4cCI6MTc2NDA3MDE0Nn0.vZgwVGgtgx_UnUTR7eMpBOvvlB2huo422JDsk0clAYk
+
+### Register a new user
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "full_name": "John Doe",
+  "phone_number": "+1234567890",
+  "role": "customer"
+}
+
+### Register an admin user
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@fooddelivery.com",
+  "password": "AdminPass123!",
+  "full_name": "System Admin",
+  "phone_number": "+1234567890",
+  "role": "admin"
+}
+
+### Register a regular user
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@fooddelivery.com",
+  "password": "UserPass123!",
+  "full_name": "Regular User",
+  "phone_number": "+1234567890",
+  "role": "customer"
+}
+
+### Register a restaurant owner
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "restaurant@owner.com",
+  "password": "Restaurant123!",
+  "full_name": "Restaurant Owner",
+  "phone_number": "+1234567890",
+  "role": "restaurant_owner"
+}
+
+### Login as admin
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@fooddelivery.com",
+  "password": "AdminPass123!"
+}
+
+### Login as regular user
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@fooddelivery.com",
+  "password": "UserPass123!"
+}
+
+### Login as restaurant owner
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "restaurant@owner.com",
+  "password": "Restaurant123!"
+}
+
+### Login with email and password
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!"
+}
+
+### Social login with provider token
+POST http://localhost:3000/api/v1/auth/social-login
+Content-Type: application/json
+
+{
+  "provider": "google",
+  "access_token": "ya29.a0AfH6SMC..."
+}
+
+### Refresh access token
+POST http://localhost:3000/api/v1/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3NjM5ODM3NDYsImV4cCI6MTc2NDA3MDE0Nn0.vZgwVGgtgx_UnUTR7eMpBOvvlB2huo422JDsk0clAYk"
+}
+
+### Request password reset
+POST http://localhost:3000/api/v1/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com"
+}
+
+### Reset password with token
+POST http://localhost:3000/api/v1/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "new_password": "NewPassword123!"
+}
+
+### Verify OTP for phone verification
+POST http://localhost:3000/api/v1/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "otp": "123456"
+}
+
+### Get current user profile
+GET http://localhost:3000/api/v1/auth/profile
+Authorization: Bearer {{access_token}}
+
+### Logout current user
+POST http://localhost:3000/api/v1/auth/logout
+Authorization: Bearer {{access_token}}

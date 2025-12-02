@@ -1,0 +1,53 @@
+### Create a new notification
+POST http://localhost:3000/api/v1/notifications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "type": "order_status",
+  "title": "Order Update",
+  "message": "Your order has been shipped",
+  "data": {
+    "orderId": 123
+  },
+  "channel": "in_app"
+}
+
+### Get all notifications (optional unread filter)
+GET http://localhost:3000/api/v1/notifications
+Authorization: Bearer {{token}}
+
+GET http://localhost:3000/api/v1/notifications?unread=true
+Authorization: Bearer {{token}}
+
+### Get unread notifications count
+GET http://localhost:3000/api/v1/notifications/unread-count
+Authorization: Bearer {{token}}
+
+### Get notification by ID
+GET http://localhost:3000/api/v1/notifications/1
+Authorization: Bearer {{token}}
+
+### Update a notification
+PATCH http://localhost:3000/api/v1/notifications/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Updated Order Update",
+  "message": "Your order has been delivered",
+  "is_read": true
+}
+
+### Mark a notification as read
+PATCH http://localhost:3000/api/v1/notifications/1/read
+Authorization: Bearer {{token}}
+
+### Mark all notifications as read
+PATCH http://localhost:3000/api/v1/notifications/mark-all-read
+Authorization: Bearer {{token}}
+
+### Delete a notification
+DELETE http://localhost:3000/api/v1/notifications/1
+Authorization: Bearer {{token}}

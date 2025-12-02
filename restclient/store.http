@@ -1,0 +1,73 @@
+### Store Module REST Client Tests
+
+@access_token = 
+
+### Create store
+POST http://localhost:3000/api/v1/stores/create
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "owner_id": 1,
+  "name": "My Store",
+  "description": "A sample store",
+  "contact_info": "123-456-7890",
+  "delivery_fee": 100,
+  "image_url": "https://example.com/image.png",
+  "store_code": "STORE001",
+  "is_active": true,
+  "is_verified": false,
+  "rating": 0,
+  "total_reviews": 0,
+  "area": "Downtown",
+  "town": "Cityville",
+  "county": "Countyshire",
+  "country": "Kenya"
+}
+
+### Get store by owner ID
+GET http://localhost:3000/api/v1/stores/owner/1
+Authorization: Bearer {{access_token}}
+
+### Get all stores
+GET http://localhost:3000/api/v1/stores/all
+Authorization: Bearer {{access_token}}
+
+### Get unverified stores
+GET http://localhost:3000/api/v1/stores/unverified-stores
+Authorization: Bearer {{access_token}}
+
+### Get stores by location
+GET http://localhost:3000/api/v1/stores/location/Cityville?state=Countyshire
+Authorization: Bearer {{access_token}}
+
+### Rate a store
+POST http://localhost:3000/api/v1/stores/rate/1
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "rating": 5
+}
+
+### Verify a store
+PATCH http://localhost:3000/api/v1/stores/verify/1
+Authorization: Bearer {{access_token}}
+
+### Get store by ID
+GET http://localhost:3000/api/v1/stores/1
+Authorization: Bearer {{access_token}}
+
+### Update a store
+PATCH http://localhost:3000/api/v1/stores/1
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "description": "Updated store description",
+  "is_active": true
+}
+
+### Delete a store
+DELETE http://localhost:3000/api/v1/stores/1
+Authorization: Bearer {{access_token}}

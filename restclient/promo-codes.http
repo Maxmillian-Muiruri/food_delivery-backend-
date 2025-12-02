@@ -1,0 +1,64 @@
+### Create a new promo code (Admin only)
+POST http://localhost:3000/api/v1/promo-codes
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "code": "SAVE10",
+  "description": "Save 10% on your first order",
+  "discount_type": "percentage",
+  "discount_value": 10,
+  "minimum_order_amount": 50,
+  "maximum_discount_amount": 100,
+  "valid_from": "2023-01-01T00:00:00Z",
+  "valid_until": "2025-12-31T23:59:59Z",
+  "usage_limit": 100,
+  "is_first_order_only": false,
+  "is_active": true
+}
+
+### Get all promo codes (with pagination and filter)
+GET http://localhost:3000/api/v1/promo-codes?page=1&limit=10&active=true
+
+### Get currently available promo codes for users
+GET http://localhost:3000/api/v1/promo-codes/available
+
+### Get a promo code by ID
+GET http://localhost:3000/api/v1/promo-codes/1
+
+### Validate a promo code
+POST http://localhost:3000/api/v1/promo-codes/validate
+Content-Type: application/json
+
+{
+  "code": "SAVE10"
+}
+
+### Apply a promo code to cart/order
+POST http://localhost:3000/api/v1/promo-codes/apply
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "code": "SAVE10",
+  "restaurant_id": 1,
+  "order_amount": 150.25
+}
+
+### Update a promo code (Admin only)
+PATCH http://localhost:3000/api/v1/promo-codes/1
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "description": "Updated description",
+  "is_active": false
+}
+
+### Delete a promo code (Admin only)
+DELETE http://localhost:3000/api/v1/promo-codes/1
+Authorization: Bearer {{access_token}}
+
+### Get user's promo code usage history
+GET http://localhost:3000/api/v1/promo-codes/user/history?page=1&limit=10
+Authorization: Bearer {{access_token}}

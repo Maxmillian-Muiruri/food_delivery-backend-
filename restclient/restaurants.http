@@ -1,0 +1,184 @@
+### ============================================================================
+### RESTAURANT API ENDPOINTS - UPDATED WITH STORE-SERVICE FUNCTIONALITY
+### ============================================================================
+
+# Token Variables (Update these with actual tokens from auth.http)
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMDUsImVtYWlsIjoidXNlckBmb29kZGVsaXZlcnkuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTQ0NTExLCJleHAiOjE3NjQyMzA5MTF9.cagpSf9dTpTs84IA7Yh0LJTbRNWmQ-pCqVEKwbdJKKI
+# INSTRUCTIONS: Create these accounts first, then login to get tokens
+# 1. Register Admin: Use "Register an admin user" in auth.http
+# 2. Register Restaurant Owner: Use custom registration with role "restaurant_owner"
+# 3. Login to get JWT tokens and replace the placeholders below
+
+@admin_access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMDQsImVtYWlsIjoiYWRtaW5AZm9vZGRlbGl2ZXJ5LmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDE0NDQ3MCwiZXhwIjoxNzY0MjMwODcwfQ.Dff_hHGdfkk58qmS76Mq5IWfPVnyYxZxHAsuBU9MYuo
+@restaurant_owner_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMDYsImVtYWlsIjoicmVzdGF1cmFudEBvd25lci5jb20iLCJyb2xlIjoicmVzdGF1cmFudF9vd25lciIsImlhdCI6MTc2NDE0NDY2MCwiZXhwIjoxNzY0MjMxMDYwfQ.0bMkZaxn2-ITDQZ3DdLablg4izCKQD9ZuCVpLHiDaic
+### Create a new restaurant (StoreService-style with transaction & address creation)
+POST http://localhost:3000/api/v1/restaurants
+Authorization: Bearer {{restaurant_owner_token}}
+Content-Type: application/json
+
+{
+  "owner_id":  1006,
+  "name": "Mario's Italian Kitchen",
+  "description": "Authentic Italian cuisine made with love",
+  "contact_info": "+1234567890",
+  "delivery_fee": 2.50,
+  "image_url": "https://example.com/restaurant-logo.jpg",
+  "area": "Westlands",
+  "county": "Westlands Road",
+  "town": "Nairobi",
+  "country": "Kenya"
+}
+
+### Get all restaurants (public - no auth required)
+GET http://localhost:3000/api/v1/restaurants
+
+### Get restaurant by ID (public - no auth required)
+GET http://localhost:3000/api/v1/restaurants/1
+
+### Get user's restaurants (requires auth)
+GET http://localhost:3000/api/v1/restaurants/my
+Authorization: Bearer {{access_token}}
+
+### Update restaurant by ID (requires auth)
+PATCH http://localhost:3000/api/v1/restaurants/1
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "name": "Mario's Italian Kitchen - Updated",
+  "description": "Authentic Italian cuisine with daily specials",
+  "delivery_fee": 3.00
+}
+
+### Delete restaurant by ID (requires auth)
+DELETE http://localhost:3000/api/v1/restaurants/1
+Authorization: Bearer {{access_token}}
+
+### Toggle restaurant active status (requires auth)
+POST http://localhost:3000/api/v1/restaurants/1/toggle-active
+Authorization: Bearer {{access_token}}
+
+### ============================================================================
+### STORE-SERVICE FEATURES ADDED TO RESTAURANTS
+### ============================================================================
+
+### Location-based filtering (from Stores module)
+GET http://localhost:3000/api/v1/restaurants/location/Nairobi
+
+### Location-based filtering with state/country
+GET http://localhost:3000/api/v1/restaurants/location/Nairobi?state=Nairobi&country=Kenya
+
+### Rate a restaurant (requires auth)
+POST http://localhost:3000/api/v1/restaurants/1/rate
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "rating": 5
+}
+
+### Verify restaurant (Admin only - requires admin auth)
+PATCH http://localhost:3000/api/v1/restaurants/1/verify
+Authorization: Bearer {{admin_access_token}}
+
+### Get restaurant analytics (Admin only - requires admin auth)
+GET http://localhost:3000/api/v1/restaurants/analytics/overview
+Authorization: Bearer {{admin_access_token}}
+
+### Get all unverified restaurants (Admin only - requires admin auth)
+GET http://localhost:3000/api/v1/restaurants/unverified/all
+Authorization: Bearer {{admin_access_token}}
+
+### Get restaurants by owner ID (Admin only - requires admin auth)
+GET http://localhost:3000/api/v1/restaurants/owner/1
+Authorization: Bearer {{admin_access_token}}
+
+### ============================================================================
+### FILE UPLOAD ENDPOINTS
+### ============================================================================
+
+### Upload restaurant logo (requires auth)
+POST http://localhost:3000/api/v1/restaurants/1/upload-logo
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="logo.png"
+Content-Type: image/png
+
+< ./path-to-logo.png
+--boundary--
+
+### Upload restaurant banner (requires auth)
+POST http://localhost:3000/api/v1/restaurants/1/upload-banner
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="banner.png"
+Content-Type: image/png
+
+< ./path-to-banner.png
+--boundary--
+
+### ============================================================================
+### WORKING TEST EXAMPLES (Tested and Verified)
+### ============================================================================
+
+### ✅ WORKING: Get all restaurants (tested)
+GET http://localhost:3000/api/v1/restaurants
+
+### ✅ WORKING: Get restaurant by ID (tested)
+GET http://localhost:3000/api/v1/restaurants/1
+
+### ✅ WORKING: Location-based filtering (tested)
+GET http://localhost:3000/api/v1/restaurants/location/Test%20City
+
+### 🔒 REQUIRES AUTH: Create restaurant (needs restaurant_owner role)
+POST http://localhost:3000/api/v1/restaurants
+Authorization: Bearer {{restaurant_owner_token}}
+Content-Type: application/json
+
+{
+  "owner_id": 1006,
+  "name": "Test Store-Style Restaurant",
+  "description": "Created using Store-style logic",
+  "contact_info": "+1234567890",
+  "delivery_fee": 2.50,
+  "area": "Westlands",
+  "county": "Westlands Road",
+  "town": "Nairobi",
+  "country": "Kenya"
+}
+
+### 🔒 REQUIRES AUTH: Rate restaurant (tested - returns 401 without auth)
+POST http://localhost:3000/api/v1/restaurants/1/rate
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "rating": 5
+}
+
+### 🔒 REQUIRES ADMIN: Restaurant analytics (tested - returns 401 without admin auth)
+GET http://localhost:3000/api/v1/restaurants/analytics/overview
+Authorization: Bearer {{admin_access_token}}
+
+Authorization: Bearer {{admin_access_token}}
+
+
+
+### 
+POST http://localhost:3000/api/v1/restaurants
+ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMDYsImVtYWlsIjoicmVzdGF1cmFudEBvd25lci5jb20iLCJyb2xlIjoicmVzdGF1cmFudF9vd25lciIsImlhdCI6MTc2NDE0NDY2MCwiZXhwIjoxNzY0MjMxMDYwfQ.0bMkZaxn2-ITDQZ3DdLablg4izCKQD9ZuCVpLHiDaic
+  Content-Type: application/json 
+   {"owner_id": 2, 
+   "name": "Test Restaurant 2", 
+   "description": "Test restaurant", 
+   "contact_info": "+1234567890", 
+   "delivery_fee": 2.50, 
+   "area": "Westlands", 
+   "county": "Westlands Road", 
+   "town": "Nairobi", 
+   "country": "Kenya"
+   }

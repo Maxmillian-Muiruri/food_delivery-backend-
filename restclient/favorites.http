@@ -1,0 +1,29 @@
+### Add to favorites
+POST http://localhost:3000/favorites
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "restaurantId": 1
+}
+
+### Remove from favorites
+DELETE http://localhost:3000/favorites
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "menuItemId": 5
+}
+
+### Get all user favorites
+GET http://localhost:3000/favorites
+Authorization: Bearer {{access_token}}
+
+### Get user favorite restaurants
+GET http://localhost:3000/favorites/restaurants
+Authorization: Bearer {{access_token}}
+
+### Get user favorite menu items
+GET http://localhost:3000/favorites/menu-items
+Authorization: Bearer {{access_token}}

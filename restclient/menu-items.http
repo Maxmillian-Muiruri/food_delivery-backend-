@@ -1,0 +1,108 @@
+### ============================================================================
+### MENU ITEMS API ENDPOINTS - FOR VIEW MENU FUNCTIONALITY
+### ============================================================================
+
+# Token Variables (Update these with actual tokens from auth.http)
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMDUsImVtYWlsIjoidXNlckBmb29kZGVsaXZlcnkuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzYzOTk2MTU0LCJleHAiOjE3NjQwODI1NTR9.4KNDvSKkFwmrYMrTf9UNL-JUMk7M0m9j92RCGYAekk0
+@restaurant_owner_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMDYsImVtYWlsIjoicmVzdGF1cmFudEBvd25lci5jb20iLCJyb2xlIjoicmVzdGF1cmFudF9vd25lciIsImlhdCI6MTc2NDE0NDY2MCwiZXhwIjoxNzY0MjMxMDYwfQ.0bMkZaxn2-ITDQZ3DdLablg4izCKQD9ZuCVpLHiDaic
+# IMPORTANT: Before creating menu items, you must create a restaurant first!
+# 1. Use the restaurant creation endpoint in restaurants.http
+# 2. Get your restaurant ID from the response
+# 3. Update @restaurant_id below with your restaurant's ID
+@restaurant_id = 10
+
+### ============================================================================
+
+### Create a menu item (Restaurant Owner only)
+POST http://localhost:3000/api/v1/menu-items
+Authorization: Bearer {{restaurant_owner_token}}
+Content-Type: application/json
+
+{
+  "restaurant_id": {{restaurant_id}},
+  "name": "Margherita Pizza",
+  "description": "Classic pizza with tomato sauce, mozzarella, and fresh basil",
+  "price": 15.99,
+  "category": "Main Course",
+  "dietary_tags": ["vegetarian"],
+  "allergens": ["dairy", "gluten"],
+  "ingredients": "Tomato sauce, mozzarella cheese, fresh basil, olive oil",
+  "preparation_time": 15
+}
+
+### Get all menu items (with filtering)
+GET http://localhost:3000/api/v1/menu-items
+
+### Get menu items by restaurant (alternative to restaurants/:id/menu)
+GET http://localhost:3000/api/v1/menu-items?restaurant_id={{restaurant_id}}
+
+### Get menu item by ID
+GET http://localhost:3000/api/v1/menu-items/1
+
+### Update menu item (Restaurant Owner only)
+PATCH http://localhost:3000/api/v1/menu-items/1
+Authorization: Bearer {{restaurant_owner_token}}
+Content-Type: application/json
+
+{
+  "name": "Margherita Pizza - Special",
+  "price": 17.99,
+  "description": "Classic pizza with premium ingredients"
+}
+
+### Toggle menu item availability (Restaurant Owner only)
+POST http://localhost:3000/api/v1/menu-items/1/toggle-availability
+Authorization: Bearer {{restaurant_owner_token}}
+
+### Bulk toggle availability (Restaurant Owner only)
+POST http://localhost:3000/api/v1/menu-items/bulk-toggle-availability
+Authorization: Bearer {{restaurant_owner_token}}
+Content-Type: application/json
+
+{
+  "ids": [1, 2, 3]
+}
+
+### Get menu categories
+GET http://localhost:3000/api/v1/menu-items/categories
+
+### Get menu categories for specific restaurant
+GET http://localhost:3000/api/v1/menu-items/categories?restaurant_id={{restaurant_id}}
+
+### Upload menu item image (Restaurant Owner only)
+POST http://localhost:3000/api/v1/menu-items/1/upload-image
+Authorization: Bearer {{restaurant_owner_token}}
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="pizza.png"
+Content-Type: image/png
+
+< ./path-to-pizza-image.png
+--boundary--
+
+### Delete menu item (Restaurant Owner only)
+DELETE http://localhost:3000/api/v1/menu-items/1
+Authorization: Bearer {{restaurant_owner_token}}
+
+### ============================================================================
+### VIEW MENU FUNCTIONALITY - CUSTOMER JOURNEY
+### ============================================================================
+
+### Step 4: VIEW MENU - Customer views restaurant menu
+GET http://localhost:3000/api/v1/restaurants/{{restaurant_id}}/menu
+
+### Alternative: Filter menu items by restaurant
+GET http://localhost:3000/api/v1/menu-items?restaurant_id={{restaurant_id}}&is_available=true
+
+### Filter by category
+GET http://localhost:3000/api/v1/menu-items?restaurant_id={{restaurant_id}}&category=Main%20Course
+
+### Filter by dietary preferences
+GET http://localhost:3000/api/v1/menu-items?restaurant_id={{restaurant_id}}&dietary_tags=vegetarian
+
+### Filter by price range
+GET http://localhost:3000/api/v1/menu-items?restaurant_id={{restaurant_id}}&min_price=10&max_price=20
+
+### Search menu items
+GET http://localhost:3000/api/v1/menu-items?restaurant_id={{restaurant_id}}&search=pizza

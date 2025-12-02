@@ -1,0 +1,85 @@
+# JWT Tokens - Replace with actual tokens after login
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3NjM5ODM3NDYsImV4cCI6MTc2NDA3MDE0Nn0.vZgwVGgtgx_UnUTR7eMpBOvvlB2huo422JDsk0clAYk
+@user_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImVtYWlsIjoidXNlckBmb29kZGVsaXZlcnkuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzYzOTg2NjI1LCJleHAiOjE3NjQwNzMwMjV9.ALRoJPQbPpYoUSOjEF4XrzO6BAcnl_D5fq0bJYw_kEM
+
+### [USER] Create home address (Nairobi, Kenya)
+POST http://localhost:3000/api/v1/addresses
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "label": "Home",
+  "street_address": "Koinange Street, Luthuli Avenue",
+  "street": "Koinange Street",
+  "city": "Nairobi",
+  "state": "Nairobi County",
+  "postal_code": "00100",
+  "zip_code": "00100",
+  "country": "Kenya",
+  "latitude": -1.2864,
+  "longitude": 36.8172,
+  "type": "home",
+  "is_default": true
+}
+
+### [USER] Create work address (Westlands, Nairobi)
+POST http://localhost:3000/api/v1/addresses
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "label": "Work Office",
+  "street_address": "Muthithi Road, Westlands",
+  "street": "Muthithi Road",
+  "city": "Nairobi",
+  "state": "Nairobi County",
+  "postal_code": "00800",
+  "zip_code": "00800",
+  "country": "Kenya",
+  "latitude": -1.2630,
+  "longitude": 36.8065,
+  "type": "work",
+  "is_default": false
+}
+
+### [USER] Get all my addresses
+GET http://localhost:3000/api/v1/addresses
+Authorization: Bearer {{user_token}}
+
+### [USER] Get my default address
+GET http://localhost:3000/api/v1/addresses/default
+Authorization: Bearer {{user_token}}
+
+### [USER] Get specific address by ID
+GET http://localhost:3000/api/v1/addresses/1003
+Authorization: Bearer {{user_token}}
+
+### [USER] Update address (change to different location)
+PATCH http://localhost:3000/api/v1/addresses/1003
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "label": "Home (Updated)",
+  "street_address": "Tom Mboya Street, Koinange Street",
+  "city": "Nairobi",
+  "state": "Nairobi County",
+  "postal_code": "00100",
+  "country": "Kenya",
+  "latitude": -1.2858,
+  "longitude": 36.8219,
+  "is_default": true
+}
+
+### [USER] Set different address as default
+POST http://localhost:3000/api/v1/addresses/2/set-default
+Authorization: Bearer {{user_token}}
+
+### [USER] Delete an address
+DELETE http://localhost:3000/api/v1/addresses/1
+Authorization: Bearer {{user_token}}
+
+### [ADMIN] Get all addresses in system (admin only)
+GET http://localhost:3000/api/v1/addresses
+Authorization: Bearer {{admin_token}}
+

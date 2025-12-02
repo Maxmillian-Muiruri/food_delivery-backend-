@@ -1,0 +1,268 @@
+### ============================================================================
+### REVIEWS API ENDPOINTS - COMPREHENSIVE TESTING
+### ============================================================================
+
+# 🎯 REVIEW SYSTEM FEATURES:
+# ✅ Restaurant & Menu Item Reviews
+# ✅ Rating System (1-5 stars)
+# ✅ Photo Upload Support
+# ✅ Review Voting (Upvote/Downvote)
+# ✅ Review Moderation (Approve/Reject)
+# ✅ Review Reporting System
+# ✅ MSSQL Compatible with nvarchar(MAX) for JSON
+
+# 📋 TEST DATA SETUP:
+# Customer Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+# Restaurant Owner Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoicmVzdGF1cmFudG93bmVyQGV4YW1wbGUuY29tIiwicm9sZSI6InJlc3RhdXJhbnRfb3duZXIiLCJpYXQiOjE3NjQxNjQ4ODYsImV4cCI6MTc2NDI1MTI4Nn0._XvtwCKyTHnPlTRMMi-QPVlMRVgMroCP-PkB-050SLk
+# Restaurant ID: 1 (Test Pizza Place)
+# Menu Item ID: 1 (Margherita Pizza)
+
+# 🧪 TEST SCENARIOS TO RUN:
+# 1. Create restaurant review
+# 2. Create menu item review
+# 3. Get all reviews
+# 4. Get reviews by target
+# 5. Update review
+# 6. Vote on review
+# 7. Moderate review (approve/reject)
+# 8. Report review
+# 9. Upload review photo
+
+### ============================================================================
+### CREATE REVIEWS - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Create Restaurant Review (5-star)
+POST http://localhost:3000/api/v1/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "targetId": 1,
+   "targetType": "RESTAURANT",
+   "orderId": 1,
+   "rating": 5,
+   "comment": "Amazing pizza! The Margherita was perfectly cooked with fresh ingredients. Great service and fast delivery!",
+   "photoUrls": []
+}
+
+### ✅ TESTED: Create Menu Item Review (4-star)
+POST http://localhost:3000/api/v1/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "targetId": 1,
+   "targetType": "MENU_ITEM",
+   "orderId": 1,
+   "rating": 4,
+   "comment": "Delicious Margherita pizza! The crust was crispy and the cheese was perfectly melted. Would order again!",
+   "photoUrls": []
+}
+
+### ✅ TESTED: Create Review with Photos
+POST http://localhost:3000/api/v1/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "targetId": 2,
+   "targetType": "MENU_ITEM",
+   "orderId": 1,
+   "rating": 5,
+   "comment": "The Pepperoni Pizza exceeded my expectations! Perfect balance of flavors and the toppings were generous.",
+   "photoUrls": ["https://example.com/pizza-photo-1.jpg", "https://example.com/pizza-photo-2.jpg"]
+}
+
+### ❌ ERROR: Invalid Target Type
+POST http://localhost:3000/api/v1/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "targetId": 1,
+   "targetType": "INVALID_TYPE",
+   "orderId": 1,
+   "rating": 3,
+   "comment": "This should fail validation",
+   "photoUrls": []
+}
+
+### ============================================================================
+### RETRIEVE REVIEWS - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Get All Reviews (with filtering options)
+GET http://localhost:3000/api/v1/reviews?page=1&limit=10&targetType=RESTAURANT&targetId=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ✅ TESTED: Get Specific Review by ID
+GET http://localhost:3000/api/v1/reviews/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ✅ TESTED: Get Reviews for Restaurant
+GET http://localhost:3000/api/v1/reviews?targetType=RESTAURANT&targetId=1&sort=rating&order=desc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ✅ TESTED: Get Reviews for Menu Item
+GET http://localhost:3000/api/v1/reviews?targetType=MENU_ITEM&targetId=1&sort=created_at&order=desc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ============================================================================
+### UPDATE REVIEWS - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Update Review Rating and Comment
+PATCH http://localhost:3000/api/v1/reviews/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "rating": 4,
+   "comment": "Updated: Still great pizza, but delivery was a bit slow this time."
+}
+
+### ============================================================================
+### REVIEW VOTING SYSTEM - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Upvote a Review
+POST http://localhost:3000/api/v1/reviews/1/vote
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "voteType": "UPVOTE"
+}
+
+### ✅ TESTED: Downvote a Review
+POST http://localhost:3000/api/v1/reviews/2/vote
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "voteType": "DOWNVOTE"
+}
+
+### ============================================================================
+### REVIEW MODERATION - RESTAURANT OWNER ONLY
+### ============================================================================
+
+### ✅ TESTED: Approve Review (Restaurant Owner)
+POST http://localhost:3000/api/v1/reviews/1/approve
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoicmVzdGF1cmFudG93bmVyQGV4YW1wbGUuY29tIiwicm9sZSI6InJlc3RhdXJhbnRfb3duZXIiLCJpYXQiOjE3NjQxNjQ4ODYsImV4cCI6MTc2NDI1MTI4Nn0._XvtwCKyTHnPlTRMMi-QPVlMRVgMroCP-PkB-050SLk
+
+### ✅ TESTED: Reject Review (Restaurant Owner)
+POST http://localhost:3000/api/v1/reviews/2/reject
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoicmVzdGF1cmFudG93bmVyQGV4YW1wbGUuY29tIiwicm9sZSI6InJlc3RhdXJhbnRfb3duZXIiLCJpYXQiOjE3NjQxNjQ4ODYsImV4cCI6MTc2NDI1MTI4Nn0._XvtwCKyTHnPlTRMMi-QPVlMRVgMroCP-PkB-050SLk
+
+### ============================================================================
+### REVIEW REPORTING SYSTEM - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Report Inappropriate Review
+POST http://localhost:3000/api/v1/reviews/3/report
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "reason": "Inappropriate content",
+   "description": "Contains offensive language and personal attacks"
+}
+
+### ✅ TESTED: Report Spam Review
+POST http://localhost:3000/api/v1/reviews/4/report
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "reason": "Spam or fake content",
+   "description": "This appears to be an advertisement or fake review"
+}
+
+### ============================================================================
+### PHOTO UPLOAD SYSTEM - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Upload Photo for Review (using Cloudinary)
+POST http://localhost:3000/api/v1/reviews/1/upload-photo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="pizza-review.jpg"
+Content-Type: image/jpeg
+
+< ./assets/fried-chicken-with-grilled-potatoes-eggplants-tomatoes-peppers.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ============================================================================
+### DELETE REVIEWS (ADMIN/OWNER ONLY - USE WITH CAUTION)
+### ============================================================================
+
+### ⚠️  CAUTION: Deleting reviews affects restaurant ratings
+DELETE http://localhost:3000/api/v1/reviews/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ============================================================================
+### VALID TARGET TYPES & RATING SYSTEM
+### ============================================================================
+
+# ✅ VALID TARGET TYPES:
+# - "RESTAURANT" - Reviews for restaurants
+# - "MENU_ITEM" - Reviews for specific menu items
+
+# ✅ RATING SYSTEM:
+# - 1 star: Poor
+# - 2 stars: Fair
+# - 3 stars: Good
+# - 4 stars: Very Good
+# - 5 stars: Excellent
+
+# ✅ VOTE TYPES:
+# - "UPVOTE" - Positive vote
+# - "DOWNVOTE" - Negative vote
+
+# ✅ REPORT REASONS:
+# - "Inappropriate content"
+# - "Spam or fake content"
+# - "Harassment or bullying"
+# - "Off-topic"
+# - "Other"
+
+### ============================================================================
+### SAMPLE REVIEW RESPONSE STRUCTURE
+### ============================================================================
+
+# Expected Response from GET /api/v1/reviews/1:
+# {
+#   "id": 1,
+#   "targetId": 1,
+#   "targetType": "RESTAURANT",
+#   "orderId": 1,
+#   "userId": 1,
+#   "rating": 5,
+#   "comment": "Amazing pizza! The Margherita was perfectly cooked...",
+#   "photoUrls": ["https://cloudinary.com/..."],
+#   "status": "approved",
+#   "helpfulVotes": 5,
+#   "unhelpfulVotes": 1,
+#   "created_at": "2025-11-27T01:35:00.000Z",
+#   "updated_at": "2025-11-27T01:35:00.000Z",
+#   "user": {
+#     "id": 1,
+#     "full_name": "Test Customer",
+#     "profile_picture_url": null
+#   },
+#   "order": {
+#     "id": 1,
+#     "order_number": "ORD-1764165136933-MX28C42WV"
+#   },
+#   "review_photos": [
+#     {
+#       "id": 1,
+#       "photo_url": "https://cloudinary.com/...",
+#       "public_id": "reviews/photo123"
+#     }
+#   ]
+# }

@@ -1,0 +1,51 @@
+### Register as a driver
+POST http://localhost:3000/api/v1/drivers/register
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "licensePlate": "XYZ1234",
+  "vehicleType": "car"
+}
+
+### Get driver by ID
+GET http://localhost:3000/api/v1/drivers/1
+
+### Update availability status of the logged-in driver
+PATCH http://localhost:3000/api/v1/drivers/me/availability
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "availabilityStatus": "available"
+}
+
+### Update location of the logged-in driver
+PATCH http://localhost:3000/api/v1/drivers/me/location
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "latitude": 37.7749,
+  "longitude": -122.4194
+}
+
+### Get all drivers (admin only)
+GET http://localhost:3000/api/v1/drivers
+Authorization: Bearer {{token}}
+
+### Upload driver document
+POST http://localhost:3000/api/v1/drivers/1/documents
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="license.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/license.jpg
+--boundary
+Content-Disposition: form-data; name="documentType"
+
+driver_license
+--boundary--

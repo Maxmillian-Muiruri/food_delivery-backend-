@@ -1,0 +1,37 @@
+### Transfers Module REST Client Tests
+
+### Process delivery payments
+POST http://localhost:3000/api/v1/transfers/process-delivery-payments
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "order_id": 123,
+  "delivery_id": 456,
+  "store": {
+    "id": "store123",
+    "name": "Sample Store",
+    "account_number": "0712345678",
+    "amount": 800,
+    "participantType": "store"
+  },
+  "driver": {
+    "id": "driver456",
+    "name": "John Doe",
+    "account_number": "0787654321",
+    "amount": 200,
+    "participantType": "driver"
+  }
+}
+
+### Verify transfer status
+GET http://localhost:3000/api/v1/transfers/verify/{{transfer_reference}}
+Authorization: Bearer {{access_token}}
+
+### Get transfers by order ID
+GET http://localhost:3000/api/v1/transfers/order/{{order_id}}
+Authorization: Bearer {{access_token}}
+
+### Get transfers by delivery ID
+GET http://localhost:3000/api/v1/transfers/delivery/{{delivery_id}}
+Authorization: Bearer {{access_token}}

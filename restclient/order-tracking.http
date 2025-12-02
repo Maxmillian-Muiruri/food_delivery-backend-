@@ -1,0 +1,183 @@
+### ============================================================================
+### ORDER TRACKING API ENDPOINTS - TESTED & WORKING ✅
+### ============================================================================
+
+# 🎯 TESTED ENDPOINTS SUMMARY:
+# ✅ POST /api/v1/order-tracking - Create tracking entries
+# ✅ GET /api/v1/order-tracking - Get all tracking entries
+# ✅ GET /api/v1/order-tracking/order/{orderId} - Get tracking for specific order
+# ✅ GET /api/v1/order-tracking/{id} - Get specific tracking entry
+# ✅ PATCH /api/v1/order-tracking/{id} - Update tracking entry
+# ✅ GET /api/v1/orders/{id}/tracking - Alternative order tracking endpoint
+
+# 📋 TEST DATA USED:
+# Order ID: 1 (Test order with Margherita Pizza x2 + Pepperoni Pizza x1)
+# Customer Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+# 🧪 TEST RESULTS:
+# - All endpoints working correctly ✅
+# - GPS coordinates properly stored ✅
+# - Chronological ordering maintained ✅
+# - Order relationships included ✅
+# - MSSQL datetime2 compatibility ✅
+
+### ============================================================================
+### CREATE TRACKING ENTRIES - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Create "confirmed" status tracking entry
+POST http://localhost:3000/api/v1/order-tracking
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "order_id": 1,
+   "status": "confirmed",
+   "message": "Order confirmed and being prepared",
+   "latitude": 40.7128,
+   "longitude": -74.006
+}
+
+### ✅ TESTED: Create "preparing" status tracking entry
+POST http://localhost:3000/api/v1/order-tracking
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "order_id": 1,
+   "status": "preparing",
+   "message": "Order is being prepared now",
+   "latitude": 40.7128,
+   "longitude": -74.006
+}
+
+### ✅ TESTED: Create "ready" status tracking entry
+POST http://localhost:3000/api/v1/order-tracking
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "order_id": 1,
+   "status": "ready",
+   "message": "Order is ready for pickup",
+   "latitude": 40.7128,
+   "longitude": -74.006
+}
+
+### ❌ ERROR: Invalid status (will fail validation)
+POST http://localhost:3000/api/v1/order-tracking
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "order_id": 1,
+   "status": "out_for_delivery",
+   "message": "Order is out for delivery",
+   "latitude": 40.7128,
+   "longitude": -74.006
+}
+
+### ============================================================================
+### RETRIEVE TRACKING ENTRIES - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Get all tracking entries (with order details)
+GET http://localhost:3000/api/v1/order-tracking
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ✅ TESTED: Get tracking history for specific order (chronological)
+GET http://localhost:3000/api/v1/order-tracking/order/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ✅ TESTED: Get specific tracking entry by ID
+GET http://localhost:3000/api/v1/order-tracking/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ✅ TESTED: Alternative endpoint - Get order tracking from orders module
+GET http://localhost:3000/api/v1/orders/1/tracking
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ============================================================================
+### UPDATE TRACKING ENTRIES - TESTED SCENARIOS
+### ============================================================================
+
+### ✅ TESTED: Update tracking entry message and coordinates
+PATCH http://localhost:3000/api/v1/order-tracking/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+Content-Type: application/json
+
+{
+   "message": "Order is ready for pickup - driver assigned",
+   "latitude": 40.7128,
+   "longitude": -74.006
+}
+
+### ============================================================================
+### DELETE TRACKING ENTRIES (NOT RECOMMENDED - FOR TESTING ONLY)
+### ============================================================================
+
+### ⚠️  CAUTION: Deleting tracking entries breaks order history
+DELETE http://localhost:3000/api/v1/order-tracking/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdGN1c3RvbWVyQGV4YW1wbGUuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTY0ODY0LCJleHAiOjE3NjQyNTEyNjR9.GdaUp9A0KGjKIaMzmNzbH4FxO-SJlXZwSnBZyGFP2VI
+
+### ============================================================================
+### VALID STATUS VALUES FOR ORDER TRACKING
+### ============================================================================
+
+# ✅ VALID STATUSES:
+# - "pending" - Order placed, awaiting confirmation
+# - "confirmed" - Order confirmed by restaurant
+# - "preparing" - Order is being prepared
+# - "ready" - Order ready for pickup/delivery
+# - "picked_up" - Order picked up by driver
+# - "delivered" - Order successfully delivered
+# - "cancelled" - Order cancelled
+
+# ❌ INVALID STATUSES (will cause validation error):
+# - "out_for_delivery" (use "picked_up" instead)
+# - "in_transit" (use "picked_up" instead)
+# - Any other custom status
+
+### ============================================================================
+### SAMPLE TRACKING HISTORY RESPONSE (Order ID: 1)
+### ============================================================================
+
+# Expected Response from GET /api/v1/order-tracking/order/1:
+# [
+#   {
+#     "id": 1,
+#     "order_id": 1,
+#     "status": "pending",
+#     "message": "Order placed successfully",
+#     "latitude": null,
+#     "longitude": null,
+#     "created_at": "2025-11-26T10:52:17.040Z"
+#   },
+#   {
+#     "id": 4,
+#     "order_id": 1,
+#     "status": "confirmed",
+#     "message": "Order confirmed and being prepared",
+#     "latitude": 40.7128,
+#     "longitude": -74.006,
+#     "created_at": "2025-11-26T16:05:26.466Z"
+#   },
+#   {
+#     "id": 5,
+#     "order_id": 1,
+#     "status": "preparing",
+#     "message": "Order is being prepared now",
+#     "latitude": 40.7128,
+#     "longitude": -74.006,
+#     "created_at": "2025-11-26T16:05:40.513Z"
+#   },
+#   {
+#     "id": 6,
+#     "order_id": 1,
+#     "status": "ready",
+#     "message": "Order is ready for pickup - driver assigned",
+#     "latitude": 40.7128,
+#     "longitude": -74.006,
+#     "created_at": "2025-11-26T16:06:13.733Z"
+#   }
+# ]

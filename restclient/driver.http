@@ -1,0 +1,83 @@
+# Driver REST Client
+# Variables
+@host = http://localhost:3000
+@token = <YOUR_DRIVER_JWT>
+@admin_token = <YOUR_ADMIN_JWT>
+
+### 1) Register driver
+POST {{host}}/api/v1/drivers/register
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "licensePlate": "ABC123",
+  "vehicleType": "car"
+}
+
+### 2) Get driver by id
+GET {{host}}/api/v1/drivers/1
+Authorization: Bearer {{token}}
+
+
+### 3) Update availability (set to available)
+PATCH {{host}}/api/v1/drivers/me/availability
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "availabilityStatus": "available"
+}
+
+### 4) Update current location (latitude, longitude)
+PATCH {{host}}/api/v1/drivers/me/location
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "latitude": 49.420318,
+  "longitude": 8.687872
+}
+
+### 5) List all drivers (admin)
+GET {{host}}/api/v1/drivers
+Authorization: Bearer {{admin_token}}
+
+
+### 6) Upload driver document (multipart/form-data)
+# NOTE: place a test image at `restclient/test-files/license.jpg`
+POST {{host}}/api/v1/drivers/1/documents
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="documentType"
+
+license
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="license.jpg"
+Content-Type: image/jpeg
+
+< ./restclient/test-files/license.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 7) Create order (triggers driver assignment)
+# Replace `{{user_token}}` with a valid customer JWT. Ensure restaurants/menu items exist in DB.
+POST {{host}}/api/v1/orders
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "restaurant_id": 1,
+  "address_id": 1,
+  "payment_method": "card",
+  "delivery_type": "now",
+  "items": [
+    { "menu_item_id": 1, "quantity": 1 }
+  ],
+  "delivery_instructions": "Leave at door"
+}
+
+### 8) Get order details (check `driver_id` and tracking)
+GET {{host}}/api/v1/orders/{{orderId}}
+Authorization: Bearer {{user_token}}
+

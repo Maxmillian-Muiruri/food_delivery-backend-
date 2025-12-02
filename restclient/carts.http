@@ -1,0 +1,36 @@
+### Add item to cart
+POST http://localhost:3000/carts
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "menu_item_id": 1,
+  "quantity": 2,
+  "special_instructions": "Extra cheese, please"
+}
+
+### Get current cart
+GET http://localhost:3000/carts
+Authorization: Bearer {{access_token}}
+
+### Update cart item by ID
+PATCH http://localhost:3000/carts/1
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "quantity": 3,
+  "special_instructions": "Less spicy"
+}
+
+### Remove cart item by ID
+DELETE http://localhost:3000/carts/1
+Authorization: Bearer {{access_token}}
+
+### Clear entire cart
+DELETE http://localhost:3000/carts
+Authorization: Bearer {{access_token}}
+
+### Get cart total
+GET http://localhost:3000/carts/total
+Authorization: Bearer {{access_token}}

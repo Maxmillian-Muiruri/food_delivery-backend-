@@ -1,0 +1,13 @@
+### Search Module REST Client Tests
+
+### Search restaurants and menu items
+GET http://localhost:3000/api/v1/search?q=pizza
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### Search with empty query (should return empty results)
+GET http://localhost:3000/api/v1/search?q=
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### Search with no query param (should return empty results)
+GET http://localhost:3000/api/v1/search
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE

@@ -1,0 +1,49 @@
+### REST client requests for Promo Codes (for VSCode REST Client or similar)
+# Replace variables below with real values or set them in your REST client environment.
+@baseUrl = http://localhost:3000
+@adminToken = <INSERT_ADMIN_JWT_HERE>
+@userToken = <INSERT_USER_JWT_HERE>
+
+### Create promo (Admin only)
+POST {{baseUrl}}/api/v1/promo-codes
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "WELCOME10",
+  "description": "10% off first order",
+  "discount_type": "percentage",
+  "discount_value": 10,
+  "minimum_order_amount": 0,
+  "maximum_discount_amount": 50,
+  "valid_from": "2025-01-01T00:00:00.000Z",
+  "valid_until": "2026-01-01T00:00:00.000Z",
+  "usage_limit": 1000,
+  "is_first_order_only": true,
+  "is_active": true
+}
+
+### Validate promo (public)
+POST {{baseUrl}}/api/v1/promo-codes/validate
+Content-Type: application/json
+
+{
+  "code": "WELCOME10"
+}
+
+### Apply promo (authenticated user)
+POST {{baseUrl}}/api/v1/promo-codes/apply
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "code": "WELCOME10",
+  "cartTotal": 120,
+  "orderTotal": 120
+}
+
+### Get available promos (public)
+GET {{baseUrl}}/api/v1/promo-codes/available
+
+### Get all promos (admin or public depending on API)
+GET {{baseUrl}}/api/v1/promo-codes

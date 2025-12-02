@@ -1,0 +1,37 @@
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMDUsImVtYWlsIjoidXNlckBmb29kZGVsaXZlcnkuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MTQ5OTU1LCJleHAiOjE3NjQyMzYzNTV9.YvAfHeAJnUPRDFj9P1zk2yps7WlrhnBywCKqy0wPOIo
+
+### Upload restaurant image
+POST http://localhost:3000/api/v1/uploads/restaurants
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="restaurant.jpg"
+Content-Type: image/jpeg
+
+< ./path-to-restaurant-image.jpg
+--boundary--
+
+### Upload menu item image
+POST http://localhost:3000/api/v1/uploads/menu-items
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="menu-item.jpg"
+Content-Type: image/jpeg
+
+< ./path-to-menu-item-image.jpg
+--boundary--
+
+### Upload user profile picture
+POST http://localhost:3000/api/v1/uploads/users
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+< ./path-to-profile-picture.jpg
+--boundary--

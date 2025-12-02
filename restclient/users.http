@@ -1,0 +1,151 @@
+# JWT Tokens - Replace with actual tokens after login
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3NjM5ODM3NDYsImV4cCI6MTc2NDA3MDE0Nn0.vZgwVGgtgx_UnUTR7eMpBOvvlB2huo422JDsk0clAYk
+@user_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImVtYWlsIjoidXNlckBmb29kZGVsaXZlcnkuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzYzOTg2NjI1LCJleHAiOjE3NjQwNzMwMjV9.ALRoJPQbPpYoUSOjEF4XrzO6BAcnl_D5fq0bJYw_kEM
+# ==========================================
+# REGULAR USER ENDPOINTS (Any authenticated user)
+# ==========================================
+
+### [USER] Get current user profile
+GET http://localhost:3000/api/v1/users/profile
+Authorization: Bearer {{user_token}}
+
+### [USER] Update current user profile
+PATCH http://localhost:3000/api/v1/users/profile
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "email": "user.new@example.com",
+  "full_name": "Regular User Updated",
+  "phone_number": "+1234567899",
+  "profile_picture_url": "https://media.istockphoto.com/id/1410538853/photo/young-man-in-the-public-park.jpg?s=612x612&w=0&k=20&c=EtRJGnNOFPJ2HniBSLWKzsL9Xf7GHinHd5y2Tx3da0E=",
+  "dietary_preferences": ["vegetarian"],
+  "allergens": ["peanuts"]
+}
+
+### [USER] Upload profile picture file (returns Cloudinary URL)
+POST http://localhost:3000/api/v1/uploads/users
+Authorization: Bearer {{user_token}}
+
+file@file://home/max/Pictures/AGENT3.jpg
+
+### [USER] Update profile picture (using URL from upload above)
+POST http://localhost:3000/api/v1/users/profile/picture
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "profilePictureUrl": "https://example.com/user-profile-pic.jpg"
+}
+
+### [USER] Update dietary preferences
+POST http://localhost:3000/api/v1/users/profile/preferences
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "preferences": ["vegan", "gluten-free"]
+}
+
+### [USER] Update allergens
+POST http://localhost:3000/api/v1/users/profile/allergens
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "allergens": ["dairy", "shellfish"]
+}
+
+# ==========================================
+# ADMIN USER ENDPOINTS (Admin role required)
+# ==========================================
+
+### [ADMIN] Get current admin profile
+GET http://localhost:3000/api/v1/users/profile
+Authorization: Bearer {{admin_token}}
+
+### [ADMIN] Get all users (Admin only)
+GET http://localhost:3000/api/v1/users
+Authorization: Bearer {{admin_token}}
+
+### [ADMIN] Get user by ID (Admin only)
+GET http://localhost:3000/api/v1/users/1
+Authorization: Bearer {{admin_token}}
+
+### [ADMIN] Update current admin profile
+PATCH http://localhost:3000/api/v1/users/profile
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "email": "admin.new@example.com",
+  "full_name": "Admin Newname",
+  "phone_number": "+1234567899",
+  "profile_picture_url": "https://example.com/admin-profile.jpg",
+  "dietary_preferences": ["vegetarian"],
+  "allergens": ["peanuts"]
+}
+
+### [ADMIN] Update user by ID (Admin only)
+PATCH http://localhost:3000/api/v1/users/1
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "email": "updated.user@example.com",
+  "full_name": "Updated User",
+  "role": "admin"
+}
+
+### [ADMIN] Delete user by ID (Admin only)
+DELETE http://localhost:3000/api/v1/users/1
+Authorization: Bearer {{admin_token}}
+
+### [ADMIN] Deactivate user account (Admin only)
+POST http://localhost:3000/api/v1/users/1/deactivate
+Authorization: Bearer {{admin_token}}
+
+### [ADMIN] Activate user account (Admin only)
+POST http://localhost:3000/api/v1/users/1/activate
+Authorization: Bearer {{admin_token}}
+
+### [ADMIN] Upload admin profile picture file
+POST http://localhost:3000/api/v1/uploads/users
+Authorization: Bearer {{admin_token}}
+
+file@file:///home/max/Pictures/peter.jpg
+
+### [ADMIN] Update admin profile picture
+POST http://localhost:3000/api/v1/users/profile/picture
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "profilePictureUrl": "https://example.com/admin-profile-pic.jpg"
+}
+
+### [ADMIN] Update admin dietary preferences
+POST http://localhost:3000/api/v1/users/profile/preferences
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "preferences": ["vegan", "gluten-free"]
+}
+
+### [ADMIN] Update admin allergens
+POST http://localhost:3000/api/v1/users/profile/allergens
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "allergens": ["dairy", "shellfish"]
+}
+
+
+
+# Content-Type: application/json
+
+# {
+#   "allergens": ["dairy", "shellfish"]
+# }

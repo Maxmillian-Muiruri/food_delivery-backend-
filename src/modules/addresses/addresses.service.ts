@@ -19,10 +19,11 @@ export class AddressesService {
 
   async create(
     createAddressDto: CreateAddressDto,
-    user: User,
+    user?: User,
   ): Promise<Address> {
+    // For public addresses, we don't associate with a user
     // If this is set as default, unset other default addresses for this user
-    if (createAddressDto.is_default) {
+    if (createAddressDto.is_default && user) {
       await this.addressRepository.update(
         { userId: user.id },
         { is_default: false },
@@ -31,17 +32,24 @@ export class AddressesService {
 
     const address = this.addressRepository.create({
       ...createAddressDto,
-      userId: user.id,
+      userId: user?.id,
     });
 
     return this.addressRepository.save(address);
   }
 
-  async findAll(user: User): Promise<Address[]> {
-    return this.addressRepository.find({
-      where: { userId: user.id },
-      order: { is_default: 'DESC', createdAt: 'DESC' },
-    });
+  async findAll(user?: User): Promise<Address[]> {
+    if (user) {
+      return this.addressRepository.find({
+        where: { userId: user.id },
+        order: { is_default: 'DESC', createdAt: 'DESC' },
+      });
+    } else {
+      // For public access, return all addresses (or you might want to filter differently)
+      return this.addressRepository.find({
+        order: { is_default: 'DESC', createdAt: 'DESC' },
+      });
+    }
   }
 
   async findOne(id: number, user: User): Promise<Address> {

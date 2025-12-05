@@ -545,4 +545,91 @@ export class RestaurantsService {
 
     return menuItems;
   }
+
+  // Get dashboard statistics for restaurant owner
+  async getRestaurantDashboardStats(id: number, user: User): Promise<any> {
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { id, owner_id: user.id },
+    });
+
+    if (!restaurant) {
+      throw new ForbiddenException('Restaurant not found or does not belong to user');
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // Today's orders and revenue
+    const todayStats = await this.dataSource
+      .createQueryBuilder()
+      .select([
+        'COUNT(order.id) as orderCount',
+        'SUM(order.total_amount) as revenue',
+      ])
+      .from('orders', 'order')
+      .where('order.restaurant_id = :restaurantId', { restaurantId: id })
+      .andWhere('order.created_at >= :today', { today })
+      .andWhere('order.created_at < :tomorrow', { tomorrow })
+      .getRawOne();
+
+    // Total orders and revenue for this restaurant
+    const totalStats = await this.dataSource
+      .createQueryBuilder()
+      .select([
+        'COUNT(order.id) as totalOrders',
+        'SUM(order.total_amount) as totalRevenue',
+      ])
+      .from('orders', 'order')
+      .where('order.restaurant_id = :restaurantId', { restaurantId: id })
+      .getRawOne();
+
+    // Active orders (pending, preparing, ready)
+    const activeOrders = await this.dataSource
+      .createQueryBuilder()
+      .select('COUNT(order.id) as activeOrderCount')
+      .from('orders', 'order')
+      .where('order.restaurant_id = :restaurantId', { restaurantId: id })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['pending', 'preparing', 'ready'] })
+      .getRawOne();
+
+    // Top dishes (most ordered items)
+    const topDishes = await this.dataSource
+      .createQueryBuilder()
+      .select([
+        'menu_item.name',
+        'menu_item.price',
+        'SUM(order_item.quantity) as totalQuantity',
+        'COUNT(DISTINCT order_item.order_id) as orderCount',
+      ])
+      .from('order_items', 'order_item')
+      .leftJoin('menu_items', 'menu_item', 'order_item.menu_item_id = menu_item.id')
+      .leftJoin('orders', 'order', 'order_item.order_id = order.id')
+      .where('order.restaurant_id = :restaurantId', { restaurantId: id })
+      .groupBy('menu_item.id')
+      .addGroupBy('menu_item.name')
+      .addGroupBy('menu_item.price')
+      .orderBy('totalQuantity', 'DESC')
+      .limit(5)
+      .getRawMany();
+
+    return {
+      todayStats: {
+        orders: parseInt(todayStats?.orderCount || '0'),
+        revenue: parseFloat(todayStats?.revenue || '0'),
+      },
+      totalStats: {
+        orders: parseInt(totalStats?.totalOrders || '0'),
+        revenue: parseFloat(totalStats?.totalRevenue || '0'),
+      },
+      activeOrders: parseInt(activeOrders?.activeOrderCount || '0'),
+      topDishes: topDishes.map(dish => ({
+        name: dish.name,
+        price: parseFloat(dish.price),
+        totalQuantity: parseInt(dish.totalQuantity),
+        orderCount: parseInt(dish.orderCount),
+      })),
+    };
+  }
 }

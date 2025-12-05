@@ -3,17 +3,20 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
   Delete,
   UseGuards,
   Request,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -119,5 +122,73 @@ export class OrdersController {
       user,
       limit ? +limit : 10,
     );
+  }
+
+  // Restaurant Owner Endpoints
+  @Get('restaurant/:restaurantId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all orders for a restaurant (Restaurant Owner only)' })
+  @ApiParam({ name: 'restaurantId', description: 'Restaurant ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Orders retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Not restaurant owner' })
+  @ApiResponse({ status: 404, description: 'Restaurant not found' })
+  getOrdersForRestaurant(
+    @Param('restaurantId', ParseIntPipe) restaurantId: number,
+    @GetUser() user: User,
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.ordersService.getOrdersForRestaurant(
+      restaurantId,
+      user,
+      status,
+      limit ? +limit : 20,
+      offset ? +offset : 0,
+    );
+  }
+
+  @Patch(':id/status')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update order status (Restaurant Owner only)' })
+  @ApiParam({ name: 'id', description: 'Order ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order status updated successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid status transition' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Not restaurant owner' })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  updateOrderStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { status: string; message?: string },
+    @GetUser() user: User,
+  ) {
+    return this.ordersService.updateOrderStatusByOwner(id, body.status, user, body.message);
+  }
+
+  @Get('restaurant/:restaurantId/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get order statistics for restaurant (Restaurant Owner only)' })
+  @ApiParam({ name: 'restaurantId', description: 'Restaurant ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Statistics retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Not restaurant owner' })
+  getRestaurantOrderStats(
+    @Param('restaurantId', ParseIntPipe) restaurantId: number,
+    @GetUser() user: User,
+  ) {
+    return this.ordersService.getRestaurantOrderStats(restaurantId, user);
   }
 }

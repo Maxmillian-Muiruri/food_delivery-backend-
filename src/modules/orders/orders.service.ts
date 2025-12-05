@@ -2,9 +2,10 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In } from 'typeorm';
+import { Repository, DataSource, In, Between } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
@@ -49,13 +50,10 @@ export class OrdersService {
         throw new NotFoundException('Restaurant not found or inactive');
       }
 
-      // Validate address belongs to user
+      // Validate address exists (addresses are now public)
       const address = await this.addressRepository.findOne({
         where: { id: createOrderDto.address_id },
       });
-      if (!address || address.userId !== user.id) {
-        throw new NotFoundException('Address not found');
-      }
       if (!address) {
         throw new NotFoundException('Address not found');
       }
@@ -371,5 +369,185 @@ export class OrdersService {
         };
       })
       .filter((item) => item.menuItem !== null);
+  }
+
+  // Restaurant Owner Methods
+  async getOrdersForRestaurant(
+    restaurantId: number,
+    user: User,
+    status?: string,
+    limit: number = 20,
+    offset: number = 0,
+  ): Promise<Order[]> {
+    // Verify user owns the restaurant
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { id: restaurantId, owner_id: user.id },
+    });
+
+    if (!restaurant) {
+      throw new NotFoundException('Restaurant not found or does not belong to user');
+    }
+
+    const query = this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.user', 'user')
+      .leftJoinAndSelect('order.restaurant', 'restaurant')
+      .leftJoinAndSelect('order.address', 'address')
+      .leftJoinAndSelect('order.order_items', 'order_items')
+      .leftJoinAndSelect('order_items.menu_item', 'menu_item')
+      .where('order.restaurant_id = :restaurantId', { restaurantId });
+
+    if (status) {
+      query.andWhere('order.status = :status', { status });
+    }
+
+    return query
+      .orderBy('order.created_at', 'DESC')
+      .limit(limit)
+      .offset(offset)
+      .getMany();
+  }
+
+  async updateOrderStatusByOwner(
+    orderId: number,
+    status: string,
+    user: User,
+    message?: string,
+  ): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['restaurant'],
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Verify user owns the restaurant
+    if (order.restaurant.owner_id !== user.id) {
+      throw new ForbiddenException('You do not own this restaurant');
+    }
+
+    // Validate status transitions for restaurant owners
+    const validStatuses = ['confirmed', 'preparing', 'ready', 'completed'];
+    if (!validStatuses.includes(status)) {
+      throw new BadRequestException('Invalid status for restaurant owner');
+    }
+
+    // Check current status allows transition
+    const allowedTransitions = {
+      pending: ['confirmed'],
+      confirmed: ['preparing'],
+      preparing: ['ready'],
+      ready: ['completed'],
+      completed: [], // Final state
+    };
+
+    if (!allowedTransitions[order.status]?.includes(status)) {
+      throw new BadRequestException(`Cannot change status from ${order.status} to ${status}`);
+    }
+
+    order.status = status;
+    if (status === 'completed') {
+      order.delivered_at = new Date();
+    }
+
+    await this.orderRepository.save(order);
+
+    // Add tracking entry
+    const tracking = this.orderTrackingRepository.create({
+      order_id: order.id,
+      status,
+      message: message || `Order status updated to ${status}`,
+    });
+    await this.orderTrackingRepository.save(tracking);
+
+    return order;
+  }
+
+  async getRestaurantOrderStats(restaurantId: number, user: User): Promise<any> {
+    // Verify user owns the restaurant
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { id: restaurantId, owner_id: user.id },
+    });
+
+    if (!restaurant) {
+      throw new NotFoundException('Restaurant not found or does not belong to user');
+    }
+
+    // Get today's orders
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todayOrders = await this.orderRepository.count({
+      where: {
+        restaurant_id: restaurantId,
+        created_at: Between(today, tomorrow),
+      },
+    });
+
+    // Get total orders
+    const totalOrders = await this.orderRepository.count({
+      where: { restaurant_id: restaurantId },
+    });
+
+    // Get pending orders
+    const pendingOrders = await this.orderRepository.count({
+      where: {
+        restaurant_id: restaurantId,
+        status: In(['pending', 'confirmed', 'preparing']),
+      },
+    });
+
+    // Get today's revenue
+    const todayRevenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.total_amount)', 'revenue')
+      .where('order.restaurant_id = :restaurantId', { restaurantId })
+      .andWhere('order.created_at >= :today', { today })
+      .andWhere('order.created_at < :tomorrow', { tomorrow })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .getRawOne();
+
+    // Get total revenue
+    const totalRevenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.total_amount)', 'revenue')
+      .where('order.restaurant_id = :restaurantId', { restaurantId })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .getRawOne();
+
+    // Get top dishes (most ordered items)
+    const topDishes = await this.orderItemRepository
+      .createQueryBuilder('oi')
+      .select('mi.name', 'name')
+      .addSelect('mi.price', 'price')
+      .addSelect('SUM(oi.quantity)', 'totalQuantity')
+      .addSelect('COUNT(DISTINCT o.id)', 'orderCount')
+      .innerJoin('oi.order', 'o', 'o.restaurant_id = :restaurantId', { restaurantId })
+      .innerJoin('oi.menu_item', 'mi')
+      .where('o.status = :status', { status: 'completed' })
+      .groupBy('mi.id')
+      .addGroupBy('mi.name')
+      .addGroupBy('mi.price')
+      .orderBy('totalQuantity', 'DESC')
+      .limit(5)
+      .getRawMany();
+
+    return {
+      todayOrders,
+      totalOrders,
+      pendingOrders,
+      todayRevenue: parseFloat(todayRevenue?.revenue || '0'),
+      totalRevenue: parseFloat(totalRevenue?.revenue || '0'),
+      topDishes: topDishes.map(dish => ({
+        name: dish.name,
+        price: parseFloat(dish.price),
+        totalQuantity: parseInt(dish.totalQuantity),
+        orderCount: parseInt(dish.orderCount),
+      })),
+    };
   }
 }

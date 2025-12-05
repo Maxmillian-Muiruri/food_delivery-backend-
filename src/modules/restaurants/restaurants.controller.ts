@@ -367,4 +367,26 @@ export class RestaurantsController {
   getRestaurantMenu(@Param('id', ParseIntPipe) id: number) {
     return this.restaurantsService.getRestaurantMenu(id);
   }
+
+  // Restaurant Owner Dashboard Stats
+  @Get(':id/dashboard-stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get dashboard statistics for restaurant owner' })
+  @ApiParam({ name: 'id', description: 'Restaurant ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard statistics retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Not restaurant owner' })
+  @ApiResponse({ status: 404, description: 'Restaurant not found' })
+  getRestaurantDashboardStats(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const user = req.user as User;
+    return this.restaurantsService.getRestaurantDashboardStats(id, user);
+  }
 }

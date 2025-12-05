@@ -22,8 +22,8 @@ export class Address {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'userId' })
-  userId: number;
+  @Column({ name: 'userId', nullable: true })
+  userId: number | null;
 
   @Column({ type: 'varchar', length: 255 })
   label: string;

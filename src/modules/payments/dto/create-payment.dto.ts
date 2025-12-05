@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNumber,
@@ -38,7 +39,6 @@ export class CreatePaymentDto {
   })
   @IsOptional()
   @IsString()
-  @IsUrl()
   callback_url?: string;
 
   @ApiProperty()

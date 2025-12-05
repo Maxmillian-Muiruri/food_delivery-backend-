@@ -6,26 +6,17 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   Request,
   ParseIntPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AddressesService } from './addresses.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 
 @ApiTags('addresses')
-@ApiBearerAuth()
 @Controller('addresses')
-@UseGuards(JwtAuthGuard)
 export class AddressesController {
   constructor(private readonly addressesService: AddressesService) {}
 
@@ -43,8 +34,8 @@ export class AddressesController {
   @Get()
   @ApiOperation({ summary: 'Get all user addresses' })
   @ApiResponse({ status: 200, description: 'Addresses retrieved successfully' })
-  findAll(@Request() req: { user: User }) {
-    return this.addressesService.findAll(req.user);
+  findAll() {
+    return this.addressesService.findAll();
   }
 
   @Get('default')
